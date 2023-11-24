@@ -1,6 +1,6 @@
 import pyautogui
 import time
-import keyboard
+from pynput import keyboard
 
 def pressiona_teclas():
     # Simula a combinação de teclas "seta para a direita" e "enter"
@@ -24,20 +24,25 @@ def executa_macro():
 
         time.sleep(24)  # Intervalo de 24 segundos entre cada execução
 
-def ativa_desativa_macro():
-    # Função para ativar/desativar o macro com o atalho F12
-    atalho_ativar = 'f12'  # Substitua pelo seu atalho desejado (F12)
+def on_activate():
+    global ativar
+    if not ativar:
+        ativar = True
+        executa_macro()
+    else:
+        ativar = False
+        listener.stop()
 
-    ativar = False
+# Variável para controlar se o macro está ativado ou não
+ativar = False
 
-    while True:
-        if keyboard.is_pressed(atalho_ativar) and not ativar:
-            ativar = True
-            executa_macro()
-        elif keyboard.is_pressed(atalho_ativar) and ativar:
-            ativar = False
-            break
+# Função para ativar/desativar o macro com o atalho F12
+atalho_ativar = keyboard.Key.f12  # Substitua pelo seu atalho desejado (F12)
 
-# Chama a função para ativar/desativar o macro
-ativa_desativa_macro()
+def on_press(key):
+    if key == atalho_ativar:
+        on_activate()
 
+# Cria um ouvinte de teclado
+with keyboard.Listener(on_press=on_press) as listener:
+    listener.join()
